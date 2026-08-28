@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ocean Bypass — Auto Key Extractor</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ocean-deep: #030b14;
+            --ocean-dark: #061826;
+            --ocean-cyan: #00d4ff;
+            --ocean-teal: #00b4d8;
+            --ocean-blue: #0077b6;
+            --ocean-foam: #90e0ef;
+            --success: #00e676;
+            --warning: #ffab00;
+            --danger: #ff5252;
+            --text-primary: #e0f7fa;
+            --text-secondary: #80deea;
+            --text-muted: #4a7a8c;
+            --border-subtle: rgba(0, 212, 255, 0.12);
+            --bg-card: rgba(0, 180, 216, 0.04);
+            --font-sans: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --radius-md: 12px;
+            --radius-xl: 28px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: var(--font-sans);
+            background: var(--ocean-deep);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .app-container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 860px;
+            background: var(--ocean-dark);
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border-subtle);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+            overflow: hidden;
+        }
+
+        .app-header {
+            padding: 30px 40px 20px;
+            text-align: center;
+        }
+        .logo-ring {
+            width: 72px; height: 72px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--ocean-cyan), var(--ocean-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin: 0 auto 14px;
+            box-shadow: 0 0 40px rgba(0, 212, 255, 0.3);
+        }
+        .app-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, #90e0ef, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .app-subtitle { color: var(--text-secondary); font-size: 0.9rem; }
+
+        .app-body { padding: 8px 40px 32px; }
+
+        .input-group label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .input-wrapper textarea, .input-wrapper input {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            font-family: var(--font-sans);
+            outline: none;
+            resize: vertical;
+        }
+        .input-wrapper textarea { min-height: 90px; font-family: var(--font-mono); font-size: 0.78rem; }
+        .input-wrapper textarea:focus, .input-wrapper input:focus {
+            border-color: rgba(0, 212, 255, 0.5);
+            box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.08);
+        }
+
+        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 12px 0; }
+        .btn-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+
+        .btn {
+            flex: 1; min-width: 120px; padding: 13px 18px;
+            border: none; border-radius: var(--radius-md);
+            font-size: 0.9rem; font-weight: 700;
+            cursor: pointer; transition: all 0.3s ease;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            font-family: var(--font-sans);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--ocean-cyan), var(--ocean-blue));
+            color: #fff;
+            box-shadow: 0 8px 30px rgba(0, 212, 255, 0.3);
+        }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0, 212, 255, 0.4); }
+        .btn-secondary { background: rgba(0, 180, 216, 0.06); color: var(--text-secondary); border: 1px solid var(--border-subtle); }
+        .btn-secondary:hover { background: rgba(0, 180, 216, 0.1); }
+        .btn-success { background: linear-gradient(135deg, #00897b, #00695c); color: #fff; }
+        .btn-success:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0, 230, 118, 0.3); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+        .progress-wrapper { margin-top: 16px; display: none; }
+        .progress-wrapper.active { display: block; }
+        .progress-track { width: 100%; height: 6px; background: rgba(0, 212, 255, 0.06); border-radius: 4px; overflow: hidden; }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--ocean-cyan), var(--ocean-foam), var(--ocean-cyan));
+            background-size: 200% 100%;
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .progress-label { display: flex; justify-content: space-between; margin-top: 6px; font-size: 0.72rem; color: var(--text-muted); }
+
+        .console {
+            margin-top: 16px;
+            padding: 14px 16px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-subtle);
+            min-height: 90px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 0.78rem;
+            font-family: var(--font-mono);
+            line-height: 1.7;
+        }
+        .console .log-entry { padding: 2px 0; opacity: 0; animation: logFadeIn 0.3s ease forwards; }
+        @keyframes logFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        .console .log-time { color: #3a6a7a; font-size: 0.68rem; min-width: 60px; display: inline-block; }
+        .console .log-success { color: var(--success); }
+        .console .log-warning { color: var(--warning); }
+        .console .log-error { color: var(--danger); }
+        .console .log-accent { color: var(--ocean-foam); }
+        .console .log-bold { font-weight: 600; color: var(--text-primary); }
+
+        .results { margin-top: 16px; display: none; flex-direction: column; gap: 8px; }
+        .results.active { display: flex; }
+        .result-card {
+            background: rgba(0, 180, 216, 0.03);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .result-card .key-value { font-family: var(--font-mono); font-size: 0.72rem; color: var(--success); word-break: break-all; flex: 1; }
+        .result-card .copy-btn {
+            padding: 5px 12px;
+            background: linear-gradient(135deg, var(--ocean-cyan), var(--ocean-blue));
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .result-card .copy-btn:hover { transform: scale(1.05); }
+
+        /* VIDEO OVERLAY — 10 detik animasi + musik */
+        .video-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .video-overlay.active { display: flex; }
+        .video-overlay video {
+            max-width: 90%;
+            max-height: 60vh;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 212, 255, 0.2);
+        }
+        .video-overlay .countdown {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--ocean-cyan);
+            margin-top: 0.5rem;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+        }
+        .video-overlay .status-text {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .app-footer {
+            padding: 14px 40px 20px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            border-top: 1px solid var(--border-subtle);
+        }
+        @media (max-width: 768px) {
+            .app-header { padding: 20px 20px 14px; }
+            .app-body { padding: 4px 20px 18px; }
+            .app-title { font-size: 1.4rem; }
+            .input-row { grid-template-columns: 1fr; gap: 8px; }
+            .btn-row { flex-direction: column; }
+            .btn { min-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header class="app-header">
+        <div class="logo-ring">🌊</div>
+        <h1 class="app-title">Ocean Bypass</h1>
+        <p class="app-subtitle">Auto Key Extractor + Animasi 10 Detik</p>
+    </header>
+
+    <main class="app-body">
+        <div class="input-group">
+            <label>URL Target / Shortlink</label>
+            <div class="input-wrapper">
+                <textarea id="targetUrl" placeholder="Tempel URL di sini...&#10;Contoh: https://auth.platorelay.com/a?d=..."></textarea>
+            </div>
+        </div>
+
+        <div class="input-row">
+            <div class="input-group">
+                <label>Delay (detik)</label>
+                <input type="number" id="delayInput" value="3" min="1" max="60">
+            </div>
+            <div class="input-group">
+                <label>Jumlah Iterasi</label>
+                <input type="number" id="iterInput" value="5" min="1" max="100">
+            </div>
+        </div>
+
+        <div class="btn-row">
+            <button class="btn btn-primary" id="btnStart" onclick="startBypass()">🚀 Mulai Bypass</button>
+            <button class="btn btn-secondary" onclick="clearAll()">🧹 Bersihkan</button>
+            <button class="btn btn-success" id="btnCopyAll" onclick="copyAllKeys()" disabled>📋 Copy Semua</button>
+        </div>
+
+        <div class="progress-wrapper" id="progressWrapper">
+            <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+            <div class="progress-label"><span id="progressText">Memulai...</span><span id="progressPercent">0%</span></div>
+        </div>
+
+        <div class="console" id="console">
+            <div class="log-entry"><span class="log-time">[SYS]</span><span class="log-accent">Ocean Bypass siap</span></div>
+        </div>
+
+        <div class="results" id="results">
+            <div id="resultList"></div>
+        </div>
+    </main>
+
+    <footer class="app-footer">Ocean Bypass v1.0.0</footer>
+</div>
+
+<!-- VIDEO OVERLAY (animasi 10 detik + musik) -->
+<div class="video-overlay" id="videoOverlay">
+    <video id="loadingVideo" autoplay muted loop playsinline>
+        <source src="https://assets.mixkit.co/videos/preview/mixkit-digital-animation-of-a-futuristic-tunnel-12693-large.mp4" type="video/mp4">
+    </video>
+    <div class="countdown" id="countdownNum">10</div>
+    <div class="status-text" id="statusText">🔍 Sedang mengambil key...</div>
+</div>
+
+<script>
+// ============================================
+// OCEAN BYPASS ENGINE + ANIMASI 10 DETIK
+// ============================================
+
+let foundKeys = [];
+let isRunning = false;
+let currentController = null;
+
+// ===== VIDEO OVERLAY (10 DETIK) =====
+function showVideo(text) {
+    return new Promise(resolve => {
+        const ov = document.getElementById('videoOverlay');
+        const cd = document.getElementById('countdownNum');
+        const st = document.getElementById('statusText');
+        const vid = document.getElementById('loadingVideo');
+        
+        vid.muted = false;
+        vid.play().catch(() => {});
+        ov.classList.add('active');
+        st.textContent = text || '🔍 Sedang mengambil key...';
+        
+        let s = 10;
+        cd.textContent = s;
+        const iv = setInterval(() => {
+            s--;
+            cd.textContent = s;
+            if (s <= 0) {
+                clearInterval(iv);
+                ov.classList.remove('active');
+                vid.pause();
+                resolve();
+            }
+        }, 1000);
+    });
+}
+
+// ===== LOG =====
+function log(msg, type = '') {
+    const el = document.getElementById('console');
+    const time = new Date().toLocaleTimeString('id-ID', { hour12: false });
+    const entry = document.createElement('div');
+    entry.className = 'log-entry';
+    entry.innerHTML = `<span class="log-time">[${time}]</span><span class="${type}">${msg}</span>`;
+    el.appendChild(entry);
+    el.scrollTop = el.scrollHeight;
+    while (el.children.length > 60) el.removeChild(el.firstChild);
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ===== PROGRESS =====
+function setProgress(pct, text) {
+    document.getElementById('progressWrapper').classList.add('active');
+    document.getElementById('progressFill').style.width = Math.min(100, pct) + '%';
+    document.getElementById('progressPercent').textContent = Math.round(pct) + '%';
+    if (text) document.getElementById('progressText').textContent = text;
+}
+function hideProgress() {
+    document.getElementById('progressWrapper').classList.remove('active');
+}
+
+// ===== CLEAR =====
+function clearAll() {
+    if (isRunning) return;
+    document.getElementById('targetUrl').value = '';
+    foundKeys = [];
+    document.getElementById('resultList').innerHTML = '';
+    document.getElementById('results').classList.remove('active');
+    document.getElementById('btnCopyAll').disabled = true;
+    document.getElementById('console').innerHTML = '';
+    log('Console dibersihkan', 'log-accent');
+}
+
+// ===== EXTRACT KEY =====
+function extractKeysFromText(text) {
+    const keys = [];
+    const patterns = [
+        /(?:api[_-]?key|access[_-]?token|auth[_-]?token|secret[_-]?key|client[_-]?secret)\s*[=:]\s*["']([^"']{15,})["']/gi,
+        /(?:api[_-]?key|access[_-]?token|auth[_-]?token|secret[_-]?key)\s*[=:]\s*([A-Za-z0-9._\-]{15,})/gi,
+        /"key"\s*:\s*"([^"]{15,})"/gi,
+        /"token"\s*:\s*"([^"]{15,})"/gi,
+        /Bearer\s+([A-Za-z0-9._\-]{20,})/gi,
+        /["']([A-Za-z0-9+\/._\-]{50,})["']/g
+    ];
+    patterns.forEach(p => {
+        let m;
+        while ((m = p.exec(text)) !== null) {
+            const c = m[1] || m[2];
+            if (c && c.length > 15 && c.indexOf('<') === -1 && c.indexOf('http') === -1) keys.push(c.trim());
+        }
+    });
+    return keys;
+}
+
+function extractBase64Strings(str) {
+    if (!str) return [];
+    const m = str.match(/[A-Za-z0-9+\/]{40,}={0,2}/g);
+    return m || [];
+}
+
+function deduplicate(arr) { return Array.from(new Set(arr)); }
+
+function filterValidKeys(arr) {
+    const invalid = [/^https?:\/\//i, /\.(css|js|png|jpg)$/i, /^\d+$/, /<[^>]+>/];
+    return arr.filter(k => !invalid.some(p => p.test(k)));
+}
+
+function extractQueryParams(url) {
+    const params = {};
+    try {
+        const u = new URL(url);
+        u.searchParams.forEach((v, k) => { params[k] = v; });
+    } catch (e) {}
+    return params;
+}
+
+// ===== FETCH =====
+const PROXIES = [
+    url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
+    url => 'https://corsproxy.io/?' + encodeURIComponent(url)
+];
+
+async function fetchWithRetry(url, timeout = 15000) {
+    const headers = { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' };
+    // direct
+    try {
+        const c = new AbortController();
+        currentController = c;
+        const t = setTimeout(() => c.abort(), timeout);
+        const res = await fetch(url, { signal: c.signal, headers });
+        clearTimeout(t);
+        if (res.ok) return res;
+    } catch (e) {}
+
+    // proxy
+    for (const p of PROXIES) {
+        try {
+            const c = new AbortController();
+            currentController = c;
+            const t = setTimeout(() => c.abort(), timeout + 5000);
+            const res = await fetch(p(url), { signal: c.signal, headers });
+            clearTimeout(t);
+            if (res.ok) return res;
+        } catch (e) {}
+    }
+    throw new Error('Semua fetch gagal');
+}
+
+// ===== BYPASS =====
+async function bypassSingleUrl(url) {
+    let keys = [];
+    try {
+        const res = await fetchWithRetry(url);
+        const text = await res.text();
+        const finalUrl = res.url || url;
+
+        // params
+        const params = extractQueryParams(finalUrl);
+        Object.keys(params).forEach(k => {
+            if (/key|token|auth|api|code|access|secret|d|data|payload/.test(k.toLowerCase())) {
+                const v = params[k];
+                if (v && v.length > 10) keys.push(k + '=' + v);
+            }
+        });
+
+        // response body
+        const extracted = extractKeysFromText(text);
+        keys = keys.concat(extracted);
+
+        // base64
+        const b64 = extractBase64Strings(text);
+        keys = keys.concat(b64.filter(s => s.length > 40));
+
+    } catch (e) {
+        log('Error: ' + e.message.substring(0, 60), 'log-warning');
+    }
+    return keys;
+}
+
+// ===== MAIN START =====
+async function startBypass() {
+    if (isRunning) return;
+
+    const raw = document.getElementById('targetUrl').value.trim();
+    const delay = parseInt(document.getElementById('delayInput').value) || 3;
+    const iter = parseInt(document.getElementById('iterInput').value) || 5;
+
+    if (!raw) { log('URL kosong!', 'log-error'); return; }
+
+    const urls = raw.split('\n').filter(u => u.trim());
+    if (!urls.length) { log('URL tidak valid', 'log-error'); return; }
+
+    isRunning = true;
+    foundKeys = [];
+    document.getElementById('btnStart').disabled = true;
+    document.getElementById('results').classList.remove('active');
+    document.getElementById('btnCopyAll').disabled = true;
+
+    log('🚀 MULAI BYPASS', 'log-bold');
+    log('URL: ' + urls.length + ' | Iterasi: ' + iter + ' | Delay: ' + delay + 's', 'log-accent');
+
+    // TAMPILKAN VIDEO 10 DETIK
+    await showVideo('🔍 Sedang mengambil key...');
+
+    const allKeys = new Set();
+    let step = 0;
+    const total = urls.length * iter;
+
+    for (let u = 0; u < urls.length; u++) {
+        for (let i = 0; i < iter; i++) {
+            step++;
+            setProgress((step / total) * 100, 'Iterasi ' + (i+1) + '/' + iter);
+            log('Iterasi ' + (i+1) + '/' + iter, 'log-accent');
+            const keys = await bypassSingleUrl(urls[u].trim());
+            keys.forEach(k => { if (k.length > 10) allKeys.add(k); });
+            log('Total key: ' + allKeys.size, 'log-info');
+            if (i < iter - 1) await sleep(delay * 1000);
+        }
+    }
+
+    foundKeys = filterValidKeys(deduplicate(Array.from(allKeys)));
+    hideProgress();
+
+    log('✅ SELESAI! Total ' + foundKeys.length + ' key', 'log-success');
+
+    if (foundKeys.length) {
+        const list = document.getElementById('resultList');
+        list.innerHTML = '';
+        document.getElementById('results').classList.add('active');
+        document.getElementById('btnCopyAll').disabled = false;
+        foundKeys.slice(0, 20).forEach((k, i) => {
+            const div = document.createElement('div');
+            div.className = 'result-card';
+            div.innerHTML = `<span class="key-value">${k}</span><button class="copy-btn" onclick="navigator.clipboard.writeText('${k}')">Copy</button>`;
+            list.appendChild(div);
+        });
+        if (foundKeys.length > 20) {
+            const more = document.createElement('div');
+            more.style.cssText = 'text-align:center;color:#4a7a8c;font-size:0.75rem;padding:6px;';
+            more.textContent = '... dan ' + (foundKeys.length - 20) + ' key lainnya';
+            list.appendChild(more);
+        }
+        try { await navigator.clipboard.writeText(foundKeys[0]); log('Key pertama auto-copy', 'log-success'); } catch (e) {}
+    } else {
+        log('Tidak ada key ditemukan', 'log-warning');
+    }
+
+    isRunning = false;
+    document.getElementById('btnStart').disabled = false;
+}
+
+function copyAllKeys() {
+    if (!foundKeys.length) return;
+    navigator.clipboard.writeText(foundKeys.join('\n'));
+    log('Semua key di-copy', 'log-success');
+}
+</script>
+</body>
+  </html>
